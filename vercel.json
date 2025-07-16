@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "crons": [
+    {
+      "path": "/api/dailyCast",
+      "schedule": "0 13 * * *"
+    }
+  ]
+}
