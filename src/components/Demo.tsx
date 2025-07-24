@@ -762,7 +762,7 @@ const fid= context?.user.fid;
 
 // const sendDC = `https://warpcast.com/~/inbox/create/268438?text=Hey! I'm unable to access the frame, can you please check.`;
 
-const tipUrl = `https://warpcast.com/~/compose?text=${tiped}&parentCastHash=0xff6f0949866d87be5f41f152089ac7b796e66c37`;
+const tipUrl = `https://warpcast.com/~/compose?text=${tiped}&parentCastHash=0x7e3ecfa3a59ceed76a711da53e7bd031bee24c9f`;
 
 const casting = async () => {
   const hash = await cast();
