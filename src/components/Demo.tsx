@@ -477,7 +477,10 @@ export default function Main() {
     setIsClicked(true);
     setTimeout(() => {
       // !castHash ? casting() : ( isConnected && !isConfirmed ? sendTxMint() : sendTxClaim())
-      !castHash ? casting() : undefined;
+      if (!castHash){
+ casting()
+      }
+
     }, 500);
     setTimeout(() => setIsClicked(false), 500);
   };
