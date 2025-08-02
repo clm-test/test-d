@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useState, useRef } from "react";
-import sdk, {
-  AddMiniApp,
-  type Context,
-} from "@farcaster/frame-sdk";
+import sdk, { AddMiniApp, type Context } from "@farcaster/frame-sdk";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -16,7 +13,10 @@ import {
   useSendTransaction,
   useConnect,
   useWaitForTransactionReceipt,
+  useSwitchChain,
+  useChainId,
 } from "wagmi";
+import { base, arbitrum } from "wagmi/chains";
 import { config } from "~/components/providers/WagmiProvider";
 // import { BaseError, UserRejectedRequestError } from "viem";
 // import { truncateAddress } from "~/lib/truncateAddress";
@@ -79,7 +79,7 @@ export default function Main() {
     sendTransaction,
     // error: sendTxError,
     // isError: isSendTxError,
-    isPending: isSendTxPending,
+    // isPending: isSendTxPending,
   } = useSendTransaction();
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
@@ -176,7 +176,9 @@ export default function Main() {
     display_name: string;
     fids: string;
   }
-  const [allowanceData, setAllowanceData] = useState<AllowanceResponse | null>(null);
+  const [allowanceData, setAllowanceData] = useState<AllowanceResponse | null>(
+    null
+  );
 
   const fetchAllowance = useCallback(async (fid: string) => {
     try {
@@ -458,7 +460,17 @@ export default function Main() {
   };
   const [isClicked, setIsClicked] = useState(false);
 
+  const {
+    switchChain,
+    // error: switchChainError,
+    // isError: isSwitchChainError,
+    // isPending: isSwitchChainPending,
+  } = useSwitchChain();
+  const chainId = useChainId();
+
   const CLAIM_ADDRESS = "0xA7f3667D5221a8bDc6c4e931850c62Cf42a82E0a";
+  const ARB_ADDRESS = "0xf2B24FE5E0e351e08a29224e85B8855814D207EA";
+
   // const MINT_ADDRESS = "0x3DB019427f05192F8FB64534CF9C0bF5cc596a80";
   // const userFid= context?.user.fid || ""
   const handleClaim = () => {
@@ -469,6 +481,37 @@ export default function Main() {
     }, 500);
     setTimeout(() => setIsClicked(false), 500);
   };
+
+  const [arbclicked, setArbClicked] = useState(false);
+  const [baseclicked, setbaseClicked] = useState(false);
+
+  const claimArb = () => {
+    setIsClicked(true);
+    setArbClicked(true);
+    setTimeout(() => {
+      switchChain({ chainId: arbitrum.id });
+    }, 500);
+
+    setTimeout(() => setIsClicked(false), 500);
+  };
+
+  const claimBase = () => {
+    setbaseClicked(true);
+    switchChain({ chainId: base.id });
+  };
+
+  useEffect(() => {
+    if (baseclicked && chainId === 8453) {
+      sendTxClaim();
+    }
+  }, [baseclicked, chainId]);
+
+  useEffect(() => {
+    if (arbclicked && chainId === 42161) {
+      arbTxClaim();
+    }
+  }, [arbclicked, chainId]);
+
   const sendTxClaim = useCallback(() => {
     const data = encodeFunctionData({
       abi: claimAbi,
@@ -478,6 +521,25 @@ export default function Main() {
     sendTransaction(
       {
         to: CLAIM_ADDRESS,
+        data,
+      },
+      {
+        onSuccess: (hash) => {
+          setTxHash(hash);
+        },
+      }
+    );
+  }, [sendTransaction]);
+
+  const arbTxClaim = useCallback(() => {
+    const data = encodeFunctionData({
+      abi: claimAbi,
+      functionName: "claim",
+      args: [],
+    });
+    sendTransaction(
+      {
+        to: ARB_ADDRESS,
         data,
       },
       {
@@ -560,7 +622,7 @@ export default function Main() {
   useEffect(() => {
     if (castHash) {
       // sendTxMint()
-      sendTxClaim();
+      claimBase();
     }
   }, [castHash]);
 
@@ -784,6 +846,7 @@ export default function Main() {
           <div className="flex-grow"></div>
           {activeDiv === "Home" && (
             <div className="flex-none pr-4">
+             {context?.user.fid===268438 &&<>{chainId}</>} 
               <Wallets
                 wallet_addresses={
                   allowanceData?.data[0]?.wallet_addresses ?? []
@@ -1540,7 +1603,8 @@ export default function Main() {
       <div className="flex flex-col gap-2 mt-2">
         <button
           onClick={handleClaim}
-          disabled={isSendTxPending}
+          // onClick={claimBase}
+          // disabled={isSendTxPending}
           className="text-white flex-1 text-center py-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center gap-2"
           style={{
             background:
@@ -1572,35 +1636,41 @@ export default function Main() {
             ? "Claimed"
             : "Thanks for sharing"}
         </button>
+{context?.user.fid=== 268438 &&
+<button
+          onClick={claimArb}
+          // disabled={isSendTxPending}
+          className="text-white text-center py-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center gap-2"
+          style={{
+            background:
+              "linear-gradient(90deg, #8B5CF6, #7C3AED, #A78BFA, #8B5CF6)",
+            backgroundSize: "300% 100%",
+            animation: "gradientAnimation 3s infinite ease-in-out",
+          }}
+        >
+          <div
+            className={`absolute inset-0 bg-[#38BDF8] transition-all duration-500 ${
+              isClicked ? "scale-x-100" : "scale-x-0"
+            }`}
+            style={{ transformOrigin: "center" }}
+          ></div>
+          <style>{`
+              @keyframes gradientAnimation {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+              }
+            `}</style>
+          {isConfirming
+            ? "Claiming..."
+            : isConfirmed
+            ? "Claimed"
+            : "claim degen on arbitrum"}
+        </button>
+}
+        
 
         <div className="flex-row gap-2 flex">
-          <a
-            href="https://app.degen.tips/"
-            className="text-white flex-1 text-center py-2 mb-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center gap-2"
-            style={{
-              background:
-                "linear-gradient(90deg, #8B5CF6, #7C3AED, #A78BFA, #8B5CF6)",
-              backgroundSize: "300% 100%",
-              animation: "gradientAnimation 3s infinite ease-in-out",
-            }}
-          >
-            Season Rewards
-          </a>
-          {Array.isArray(allowanceData?.data) &&
-            allowanceData?.data.length > 0 && (
-              <a
-                href="https://degensub.vercel.app"
-                className="text-white flex-1 text-center py-2 mb-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 items-center justify-center gap-2 hidden"
-                style={{
-                  background:
-                    "linear-gradient(90deg, #8B5CF6, #7C3AED, #A78BFA, #8B5CF6)",
-                  backgroundSize: "300% 100%",
-                  animation: "gradientAnimation 3s infinite ease-in-out",
-                }}
-              >
-                Degen Sub
-              </a>
-            )}
           {followData?.followBack === false && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -1779,17 +1849,7 @@ export default function Main() {
     );
   }
 }
-// const renderError = (error: Error | null) => {
-//   if (!error) return null;
-//   if (error instanceof BaseError) {
-//     const isUserRejection =
-//     error instanceof UserRejectedRequestError ||
-//     (error.cause && error.cause instanceof UserRejectedRequestError);
-
-//     if (isUserRejection) {
-//       return <div className="text-red-500 text-xs mt-1">Click again to Mint</div>;
-//     }
-//   }
-
-//   return <div className="text-red-500 text-xs mt-1">{error.message}</div>;
-// };
+const renderError = (error: Error | null) => {
+  if (!error) return null;
+  return <div className="text-red-500 text-xs mt-1">{error.message}</div>;
+};
