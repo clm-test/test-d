@@ -135,26 +135,26 @@ export default function Main() {
   interface TipsReceivedResponse {
     tipsReceivedData: TipsReceivedData[];
   }
-  interface RainResponse {
-    rainPoints: string;
-  }
+  // interface RainResponse {
+  //   rainPoints: string;
+  // }
   interface LeaderboardResponse {
     leaderData: leader[];
   }
   interface FollowResponse {
     followBack: boolean;
   }
-  interface rainboardResponse {
-    rainLeaderData: rainleader[];
-  }
-  interface rainleader {
-    fid: string;
-    points: string;
-    display_name: string;
-    avatar_url: string;
-    fname: string;
-    rank: number;
-  }
+  // interface rainboardResponse {
+  //   rainLeaderData: rainleader[];
+  // }
+  // interface rainleader {
+  //   fid: string;
+  //   points: string;
+  //   display_name: string;
+  //   avatar_url: string;
+  //   fname: string;
+  //   rank: number;
+  // }
   interface allowanceboardResponse {
     allowLeaderData: allowanceleader[];
   }
@@ -251,27 +251,27 @@ export default function Main() {
       console.error("Error fetching tips data", err);
     }
   }, []);
-  const [rainData, setRainData] = useState<RainResponse | null>(null);
+  // const [rainData, setRainData] = useState<RainResponse | null>(null);
 
-  const fetchRain = useCallback(async (fid: string) => {
-    try {
-      const rainResponse = await fetch(`/api/raindrop?fid=${fid}`);
-      if (!rainResponse.ok) {
-        throw new Error(`Fid HTTP error! Status: ${rainResponse.status}`);
-      }
-      const rainResponseData = await rainResponse.json();
+  // const fetchRain = useCallback(async (fid: string) => {
+  //   try {
+  //     const rainResponse = await fetch(`/api/raindrop?fid=${fid}`);
+  //     if (!rainResponse.ok) {
+  //       throw new Error(`Fid HTTP error! Status: ${rainResponse.status}`);
+  //     }
+  //     const rainResponseData = await rainResponse.json();
 
-      if (rainResponseData && typeof rainResponseData.rainPoints === "string") {
-        setRainData({
-          rainPoints: rainResponseData.rainPoints,
-        });
-      } else {
-        throw new Error("Invalid response structure");
-      }
-    } catch (err) {
-      console.error("Error fetching rain data", err);
-    }
-  }, []);
+  //     if (rainResponseData && typeof rainResponseData.rainPoints === "string") {
+  //       setRainData({
+  //         rainPoints: rainResponseData.rainPoints,
+  //       });
+  //     } else {
+  //       throw new Error("Invalid response structure");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error fetching rain data", err);
+  //   }
+  // }, []);
 
   const [leaderboardData, setleaderboardData] =
     useState<LeaderboardResponse | null>(null);
@@ -323,32 +323,32 @@ export default function Main() {
     }
   }, []);
 
-  const [rainboardData, setRainboardData] = useState<rainboardResponse | null>(
-    null
-  );
+  // const [rainboardData, setRainboardData] = useState<rainboardResponse | null>(
+  //   null
+  // );
 
-  const fetchrainboard = useCallback(async () => {
-    try {
-      const rainBoardResponse = await fetch(`/api/rainLeaderboard`);
-      if (!rainBoardResponse.ok) {
-        throw new Error(`Fid HTTP error! Status: ${rainBoardResponse.status}`);
-      }
+  // const fetchrainboard = useCallback(async () => {
+  //   try {
+  //     const rainBoardResponse = await fetch(`/api/rainLeaderboard`);
+  //     if (!rainBoardResponse.ok) {
+  //       throw new Error(`Fid HTTP error! Status: ${rainBoardResponse.status}`);
+  //     }
 
-      const rainLeaderResponseData = await rainBoardResponse.json();
-      if (
-        rainLeaderResponseData &&
-        Array.isArray(rainLeaderResponseData.rainboardData)
-      ) {
-        setRainboardData({
-          rainLeaderData: rainLeaderResponseData.rainboardData,
-        });
-      } else {
-        throw new Error("Invalid response structure");
-      }
-    } catch (err) {
-      console.error("Error fetching leaderboard", err);
-    }
-  }, []);
+  //     const rainLeaderResponseData = await rainBoardResponse.json();
+  //     if (
+  //       rainLeaderResponseData &&
+  //       Array.isArray(rainLeaderResponseData.rainboardData)
+  //     ) {
+  //       setRainboardData({
+  //         rainLeaderData: rainLeaderResponseData.rainboardData,
+  //       });
+  //     } else {
+  //       throw new Error("Invalid response structure");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error fetching leaderboard", err);
+  //   }
+  // }, []);
   const [pricerData, setPriceData] = useState<PriceResponse | null>(null);
 
   const price = useCallback(async () => {
@@ -477,10 +477,9 @@ export default function Main() {
     setIsClicked(true);
     setTimeout(() => {
       // !castHash ? casting() : ( isConnected && !isConfirmed ? sendTxMint() : sendTxClaim())
-      if (!castHash){
- casting()
+      if (!castHash) {
+        casting();
       }
-
     }, 500);
     setTimeout(() => setIsClicked(false), 500);
   };
@@ -580,7 +579,7 @@ export default function Main() {
   useEffect(() => {
     if (!hasFetched.current) {
       fetchLeaderboard();
-      fetchrainboard();
+      // fetchrainboard();
       fetchAllowanceboard();
       price();
       hasFetched.current = true;
@@ -599,7 +598,7 @@ export default function Main() {
       fetchAllowance(String(context.user.fid));
       fetchPoints(String(context.user.fid));
       fetchTips(String(context.user.fid));
-      fetchRain(String(context.user.fid));
+      // fetchRain(String(context.user.fid));
       fetchProfile(String(context.user.fid));
       fetchTipsReceived(String(context.user.fid));
     }
@@ -616,7 +615,7 @@ export default function Main() {
       fetchAllowance(String(refid));
       fetchPoints(String(refid));
       fetchTips(String(refid));
-      fetchRain(String(refid));
+      // fetchRain(String(refid));
       fetchProfile(String(refid));
       fetchTipsReceived(String(refid));
     }
@@ -722,7 +721,7 @@ export default function Main() {
 
     return (
       <div className="text-center border-b border-lime-400">
-        <p>Next points claim is on July 31, 2025.</p>
+        <p>Next points claim is on August 29, 2025.</p>
         <p>Allowance refreshes in {formatTime(timeLefts.daily)}</p>
         <p>Points will be updated in {formatTime(timeLefts.interval)}</p>
       </div>
@@ -743,7 +742,7 @@ export default function Main() {
   const tiped = encodeURIComponent(`${rem} $DEGEN`);
   const fid = context?.user.fid;
 
-  const tipUrl = `https://warpcast.com/~/compose?text=${tiped}&parentCastHash=0xff6f0949866d87be5f41f152089ac7b796e66c37`;
+  const tipUrl = `https://farcaster.xyz/~/compose?text=${tiped}&parentCastHash=0xff6f0949866d87be5f41f152089ac7b796e66c37`;
 
   const casting = async () => {
     const hash = await cast();
@@ -766,23 +765,23 @@ export default function Main() {
     }
   };
 
-  const calculateRanks = (data: rainleader[]): rainleader[] => {
-    let rank = 1;
-    return data.map((item, index, array) => {
-      if (index > 0 && item.points !== array[index - 1].points) {
-        rank = index + 1;
-      }
-      return { ...item, rank };
-    });
-  };
+  // const calculateRanks = (data: rainleader[]): rainleader[] => {
+  //   let rank = 1;
+  //   return data.map((item, index, array) => {
+  //     if (index > 0 && item.points !== array[index - 1].points) {
+  //       rank = index + 1;
+  //     }
+  //     return { ...item, rank };
+  //   });
+  // };
 
-  const rankedData: rainleader[] = rainboardData?.rainLeaderData
-    ? calculateRanks(
-        [...rainboardData.rainLeaderData].sort(
-          (a, b) => Number(b.points) - Number(a.points)
-        )
-      )
-    : [];
+  // const rankedData: rainleader[] = rainboardData?.rainLeaderData
+  //   ? calculateRanks(
+  //       [...rainboardData.rainLeaderData].sort(
+  //         (a, b) => Number(b.points) - Number(a.points)
+  //       )
+  //     )
+  //   : [];
   const totalValidTip =
     tipsData?.tipsData
       .filter((entry) => entry.tip_status === "valid")
@@ -825,7 +824,7 @@ export default function Main() {
 
   return (
     <div className="w-auto bg-slate-900 text-white h-screen">
-      {pointsData?.pointsRank && rainData?.rainPoints ? (
+      {pointsData?.pointsRank && allowanceData ? (
         <div>
           <Mobile />
         </div>
@@ -849,7 +848,7 @@ export default function Main() {
           <div className="flex-grow"></div>
           {activeDiv === "Home" && (
             <div className="flex-none pr-4">
-             {context?.user.fid===268438 &&<>{chainId}</>} 
+              {context?.user.fid === 268438 && <>{chainId}</>}
               <Wallets
                 wallet_addresses={
                   allowanceData?.data[0]?.wallet_addresses ?? []
@@ -907,25 +906,89 @@ export default function Main() {
       </div>
     );
   }
-  function LeaderBoard() {
-    const [activeBoard, setActiveBoard] = useState<Board>("RainBoard");
+  // function LeaderBoarda() {
+  //   const [activeBoard, setActiveBoard] = useState<Board>("PointsBoard");
 
-    const handleSwipe = (direction: "left" | "right") => {
-      const currentIndex = boards.indexOf(activeBoard);
-      const nextIndex =
-        direction === "left"
-          ? (currentIndex + 1) % boards.length
-          : (currentIndex - 1 + boards.length) % boards.length;
-      setActiveBoard(boards[nextIndex]);
-    };
+  //   const handleSwipe = (direction: "left" | "right") => {
+  //     const currentIndex = boards.indexOf(activeBoard);
+  //     const nextIndex =
+  //       direction === "left"
+  //         ? (currentIndex + 1) % boards.length
+  //         : (currentIndex - 1 + boards.length) % boards.length;
+  //     setActiveBoard(boards[nextIndex]);
+  //   };
+
+  //   const swipeHandlers = useSwipeable({
+  //     onSwipedLeft: () => handleSwipe("left"),
+  //     onSwipedRight: () => handleSwipe("right"),
+  //     delta: 10,
+  //     trackTouch: true,
+  //     touchEventOptions: { passive: false },
+  //   });
+  //   return (
+  //     <div
+  //       className="w-auto bg-slate-900 flex flex-col h-[calc(100vh-130px)]"
+  //       {...swipeHandlers}
+  //     >
+  //       {/* Header */}
+  //       <header>
+  //         <div className="container mx-auto px-4 text-center text-white">
+  //           <div className="flex justify-around">
+  //             {/* <button
+  //               className={`p-2 ${
+  //                 activeBoard === "RainBoard"
+  //                   ? "border-b-4 border-sky-400 text-sky-400 font-bold"
+  //                   : ""
+  //               }`}
+  //               onClick={() => setActiveBoard("RainBoard")}
+  //             >
+  //               Raindrops
+  //             </button> */}
+  //             <button
+  //               className={`p-2 ${
+  //                 activeBoard === "PointsBoard"
+  //                   ? "border-b-4 border-sky-400 text-sky-400 font-bold"
+  //                   : ""
+  //               }`}
+  //               onClick={() => setActiveBoard("PointsBoard")}
+  //             >
+  //               Points
+  //             </button>
+  //             <button
+  //               className={`p-2 ${
+  //                 activeBoard === "AllowanceBoard"
+  //                   ? "border-b-4 border-sky-400 text-sky-400 font-bold"
+  //                   : ""
+  //               }`}
+  //               onClick={() => setActiveBoard("AllowanceBoard")}
+  //             >
+  //               Allowance
+  //             </button>
+  //           </div>
+  //         </div>
+  //       </header>
+
+  //       {/* Body */}
+  //       <main className="flex-grow overflow-auto">
+  //         {/* {activeBoard === "RainBoard" && <RainLeaderboard />} */}
+  //         {activeBoard === "PointsBoard" && <PointsBoard />}
+  //         {activeBoard === "AllowanceBoard" && <AllowanceBoard />}
+  //       </main>
+  //     </div>
+  //   );
+  // }
+  function LeaderBoard() {
+    const [activeBoard, setActiveBoard] = useState<Board>("AllowanceBoard");
 
     const swipeHandlers = useSwipeable({
-      onSwipedLeft: () => handleSwipe("left"),
-      onSwipedRight: () => handleSwipe("right"),
-      delta: 10,
+      onSwipedLeft: () => setActiveBoard("PointsBoard"),
+      onSwipedRight: () => setActiveBoard("AllowanceBoard"),
+      delta: 10, // minimum swipe distance
       trackTouch: true,
-      touchEventOptions: { passive: false },
+      trackMouse: false,
+      touchEventOptions: { passive: false }, // allows preventDefault internally if needed
     });
+
     return (
       <div
         className="w-auto bg-slate-900 flex flex-col h-[calc(100vh-130px)]"
@@ -937,13 +1000,13 @@ export default function Main() {
             <div className="flex justify-around">
               <button
                 className={`p-2 ${
-                  activeBoard === "RainBoard"
+                  activeBoard === "AllowanceBoard"
                     ? "border-b-4 border-sky-400 text-sky-400 font-bold"
                     : ""
                 }`}
-                onClick={() => setActiveBoard("RainBoard")}
+                onClick={() => setActiveBoard("AllowanceBoard")}
               >
-                Raindrops
+                Allowance
               </button>
               <button
                 className={`p-2 ${
@@ -955,23 +1018,12 @@ export default function Main() {
               >
                 Points
               </button>
-              <button
-                className={`p-2 ${
-                  activeBoard === "AllowanceBoard"
-                    ? "border-b-4 border-sky-400 text-sky-400 font-bold"
-                    : ""
-                }`}
-                onClick={() => setActiveBoard("AllowanceBoard")}
-              >
-                Allowance
-              </button>
             </div>
           </div>
         </header>
 
         {/* Body */}
         <main className="flex-grow overflow-auto">
-          {activeBoard === "RainBoard" && <RainLeaderboard />}
           {activeBoard === "PointsBoard" && <PointsBoard />}
           {activeBoard === "AllowanceBoard" && <AllowanceBoard />}
         </main>
@@ -1092,14 +1144,14 @@ export default function Main() {
               </div>
             </div>
           </div>
-          <div className="flex flex-row justify-between px-12">
+          <div className="flex flex-row justify-between px-12 pb-2">
             <span>Points:</span>
             <span>{pointsData?.points ?? "0"}</span>
           </div>
-          <div className="flex flex-row justify-between px-12 mb-1">
+          {/* <div className="flex flex-row justify-between px-12 mb-1">
             <span>Raindrops:</span>
             <span>{rainData?.rainPoints ?? "0"}</span>
-          </div>
+          </div> */}
         </div>
       </div>
     );
@@ -1310,51 +1362,51 @@ export default function Main() {
     );
   }
 
-  function RainLeaderboard() {
-    return (
-      <div className="bg-[#1E293B] overflow-auto">
-        <table className="table-auto w-full bg-slate-700 text-lime-400 text-center">
-          <thead className="sticky top-0 bg-slate-700">
-            <tr className="text-white lime-400 border-b border-lime-400">
-              <th className="px-4 py-2">Rank</th>
-              <th className="px-4 py-2">User</th>
-              <th className="px-4 py-2">Points</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rankedData.map((item, index) => (
-              <tr
-                key={index}
-                className={`odd:bg-slate-700 even:bg-slate-600 ${
-                  profileData?.fids?.toString() === item.fid
-                    ? "border-2 border-lime-400"
-                    : ""
-                }`}
-              >
-                <td className="px-4 py-2">{item.rank}</td>
-                <td className="px-4 py-2">
-                  <div
-                    className="flex items-center cursor-pointer"
-                    onClick={() =>
-                      sdk.actions.viewProfile({ fid: Number(item.fid) })
-                    }
-                  >
-                    <img
-                      src={item.avatar_url}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-lg mr-4"
-                    />
-                    @{item.fname ?? "N/A"}
-                  </div>
-                </td>
-                <td className="px-4 py-2">{item.points ?? "N/A"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  }
+  // function RainLeaderboard() {
+  //   return (
+  //     <div className="bg-[#1E293B] overflow-auto">
+  //       <table className="table-auto w-full bg-slate-700 text-lime-400 text-center">
+  //         <thead className="sticky top-0 bg-slate-700">
+  //           <tr className="text-white lime-400 border-b border-lime-400">
+  //             <th className="px-4 py-2">Rank</th>
+  //             <th className="px-4 py-2">User</th>
+  //             <th className="px-4 py-2">Points</th>
+  //           </tr>
+  //         </thead>
+  //         <tbody>
+  //           {rankedData.map((item, index) => (
+  //             <tr
+  //               key={index}
+  //               className={`odd:bg-slate-700 even:bg-slate-600 ${
+  //                 profileData?.fids?.toString() === item.fid
+  //                   ? "border-2 border-lime-400"
+  //                   : ""
+  //               }`}
+  //             >
+  //               <td className="px-4 py-2">{item.rank}</td>
+  //               <td className="px-4 py-2">
+  //                 <div
+  //                   className="flex items-center cursor-pointer"
+  //                   onClick={() =>
+  //                     sdk.actions.viewProfile({ fid: Number(item.fid) })
+  //                   }
+  //                 >
+  //                   <img
+  //                     src={item.avatar_url}
+  //                     alt="Profile"
+  //                     className="w-10 h-10 rounded-lg mr-4"
+  //                   />
+  //                   @{item.fname ?? "N/A"}
+  //                 </div>
+  //               </td>
+  //               <td className="px-4 py-2">{item.points ?? "N/A"}</td>
+  //             </tr>
+  //           ))}
+  //         </tbody>
+  //       </table>
+  //     </div>
+  //   );
+  // }
 
   function AllowanceBoard() {
     return (
@@ -1639,39 +1691,38 @@ export default function Main() {
             ? "Claimed"
             : "Thanks for sharing"}
         </button>
-{context?.user.fid=== 268438 &&
-<button
-          onClick={claimArb}
-          // disabled={isSendTxPending}
-          className="text-white text-center py-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center gap-2"
-          style={{
-            background:
-              "linear-gradient(90deg, #8B5CF6, #7C3AED, #A78BFA, #8B5CF6)",
-            backgroundSize: "300% 100%",
-            animation: "gradientAnimation 3s infinite ease-in-out",
-          }}
-        >
-          <div
-            className={`absolute inset-0 bg-[#38BDF8] transition-all duration-500 ${
-              isClicked ? "scale-x-100" : "scale-x-0"
-            }`}
-            style={{ transformOrigin: "center" }}
-          ></div>
-          <style>{`
+        {context?.user.fid === 268438 && (
+          <button
+            onClick={claimArb}
+            // disabled={isSendTxPending}
+            className="text-white text-center py-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center gap-2"
+            style={{
+              background:
+                "linear-gradient(90deg, #8B5CF6, #7C3AED, #A78BFA, #8B5CF6)",
+              backgroundSize: "300% 100%",
+              animation: "gradientAnimation 3s infinite ease-in-out",
+            }}
+          >
+            <div
+              className={`absolute inset-0 bg-[#38BDF8] transition-all duration-500 ${
+                isClicked ? "scale-x-100" : "scale-x-0"
+              }`}
+              style={{ transformOrigin: "center" }}
+            ></div>
+            <style>{`
               @keyframes gradientAnimation {
                 0% { background-position: 0% 50%; }
                 50% { background-position: 100% 50%; }
                 100% { background-position: 0% 50%; }
               }
             `}</style>
-          {isConfirming
-            ? "Claiming..."
-            : isConfirmed
-            ? "Claimed"
-            : "claim degen on arbitrum"}
-        </button>
-}
-        
+            {isConfirming
+              ? "Claiming..."
+              : isConfirmed
+              ? "Claimed"
+              : "claim degen on arbitrum"}
+          </button>
+        )}
 
         <div className="flex-row gap-2 flex">
           {followData?.followBack === false && (
@@ -1682,7 +1733,11 @@ export default function Main() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               className="text-white flex-1 text-center py-2 mb-2 rounded-xl font-semibold text-lg shadow-xl relative overflow-hidden flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-              onClick={() => sdk.actions.viewProfile({ fid: 268438 })}
+              onClick={
+                context?.user.fid === 268438
+                  ? () => claimBase()
+                  : () => sdk.actions.viewProfile({ fid: 268438 })
+              }
             >
               Follow dev
             </motion.div>
