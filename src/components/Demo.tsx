@@ -753,12 +753,22 @@ export default function Main() {
 
   const cast = async (): Promise<string | undefined> => {
     try {
-      const result = await sdk.actions.composeCast({
-        text: "My $DEGEN stats\nminiApp by @cashlessman.eth",
-        embeds: [`https://degen-v2.vercel.app?fid=${fid}`],
-      });
-
-      return result.cast?.hash;
+      if (
+        allowanceData?.data[0]?.tip_allowance == "0" ||
+        pointsData?.points == "0"
+      ) {
+        const result = await sdk.actions.composeCast({
+          text: "$DEGEN stats\nminiapp by @cashlessman.eth",
+          embeds: [`https://degen-v2.vercel.app`],
+        });
+        return result.cast?.hash;
+      } else {
+        const result = await sdk.actions.composeCast({
+          text: "My $DEGEN stats\nminiApp by @cashlessman.eth",
+          embeds: [`https://degen-v2.vercel.app?fid=${fid}`],
+        });
+        return result.cast?.hash;
+      }
     } catch (error) {
       console.error("Error composing cast:", error);
       return undefined;
@@ -979,7 +989,9 @@ export default function Main() {
   // }
   function LeaderBoard() {
     // const [activeBoard, setActiveBoard] = useState<Board>("AllowanceBoard");
-    const [activeBoard, setActiveBoard] = useState<"AllowanceBoard" | "PointsBoard">("AllowanceBoard");
+    const [activeBoard, setActiveBoard] = useState<
+      "AllowanceBoard" | "PointsBoard"
+    >("AllowanceBoard");
 
     const swipeHandlers = useSwipeable({
       onSwipedLeft: () => setActiveBoard("PointsBoard"),
