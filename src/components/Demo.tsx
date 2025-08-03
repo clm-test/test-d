@@ -35,8 +35,8 @@ export default function Main() {
     "Home" | "AllowanceTable" | "TipsTable" | "Leaderboard"
   >("Home");
   const [activeTip, setActiveTip] = useState<"Received" | "Sent">("Received");
-  const boards = ["RainBoard", "PointsBoard", "AllowanceBoard"] as const;
-  type Board = (typeof boards)[number];
+  // const boards = ["RainBoard", "PointsBoard", "AllowanceBoard"] as const;
+  // type Board = (typeof boards)[number];
   const { isConnected } = useAccount();
   const [txHash, setTxHash] = useState<string | null>(null);
   const [castHash, setCastHash] = useState<string | null>(null);
@@ -978,7 +978,8 @@ export default function Main() {
   //   );
   // }
   function LeaderBoard() {
-    const [activeBoard, setActiveBoard] = useState<Board>("AllowanceBoard");
+    // const [activeBoard, setActiveBoard] = useState<Board>("AllowanceBoard");
+    const [activeBoard, setActiveBoard] = useState<"AllowanceBoard" | "PointsBoard">("AllowanceBoard");
 
     const swipeHandlers = useSwipeable({
       onSwipedLeft: () => setActiveBoard("PointsBoard"),
