@@ -6,7 +6,7 @@ import sdk, { AddMiniApp, type Context } from "@farcaster/frame-sdk";
 import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
-import { encodeFunctionData } from "viem";
+import { encodeFunctionData, Hash } from "viem";
 // import { abi } from '../contracts/abi';
 import {
   useAccount,
@@ -38,7 +38,7 @@ export default function Main() {
   // const boards = ["RainBoard", "PointsBoard", "AllowanceBoard"] as const;
   // type Board = (typeof boards)[number];
   const { isConnected } = useAccount();
-  const [txHash, setTxHash] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<Hash | null>(null);
   const [castHash, setCastHash] = useState<string | null>(null);
 
   const [clicked, setClicked] = useState(false);
@@ -74,18 +74,6 @@ export default function Main() {
       setAddFrameResult(`Error: ${error}`);
     }
   }, []);
-
-  const {
-    sendTransaction,
-    // error: sendTxError,
-    // isError: isSendTxError,
-    // isPending: isSendTxPending,
-  } = useSendTransaction();
-
-  const { isLoading: isConfirming, isSuccess: isConfirmed } =
-    useWaitForTransactionReceipt({
-      hash: txHash as `0x${string}`,
-    });
 
   interface allowancesData {
     snapshot_day: string;
@@ -468,8 +456,7 @@ export default function Main() {
   } = useSwitchChain();
   const chainId = useChainId();
 
-  const CLAIM_ADDRESS = "0xA7f3667D5221a8bDc6c4e931850c62Cf42a82E0a";
-  const ARB_ADDRESS = "0xf2B24FE5E0e351e08a29224e85B8855814D207EA";
+
 
   // const MINT_ADDRESS = "0x3DB019427f05192F8FB64534CF9C0bF5cc596a80";
   // const userFid= context?.user.fid || ""
@@ -483,74 +470,6 @@ export default function Main() {
     }, 500);
     setTimeout(() => setIsClicked(false), 500);
   };
-
-  const [arbclicked, setArbClicked] = useState(false);
-  const [baseclicked, setbaseClicked] = useState(false);
-
-  const claimArb = () => {
-    setIsClicked(true);
-    setArbClicked(true);
-    setTimeout(() => {
-      switchChain({ chainId: arbitrum.id });
-    }, 500);
-
-    setTimeout(() => setIsClicked(false), 500);
-  };
-
-  const claimBase = () => {
-    setbaseClicked(true);
-    switchChain({ chainId: base.id });
-  };
-
-  useEffect(() => {
-    if (baseclicked && chainId === 8453) {
-      sendTxClaim();
-    }
-  }, [baseclicked, chainId]);
-
-  useEffect(() => {
-    if (arbclicked && chainId === 42161) {
-      arbTxClaim();
-    }
-  }, [arbclicked, chainId]);
-
-  const sendTxClaim = useCallback(() => {
-    const data = encodeFunctionData({
-      abi: claimAbi,
-      functionName: "claim",
-      args: [],
-    });
-    sendTransaction(
-      {
-        to: CLAIM_ADDRESS,
-        data,
-      },
-      {
-        onSuccess: (hash) => {
-          setTxHash(hash);
-        },
-      }
-    );
-  }, [sendTransaction]);
-
-  const arbTxClaim = useCallback(() => {
-    const data = encodeFunctionData({
-      abi: claimAbi,
-      functionName: "claim",
-      args: [],
-    });
-    sendTransaction(
-      {
-        to: ARB_ADDRESS,
-        data,
-      },
-      {
-        onSuccess: (hash) => {
-          setTxHash(hash);
-        },
-      }
-    );
-  }, [sendTransaction]);
 
   // const sendTxMint = useCallback(() => {
 
@@ -574,6 +493,151 @@ export default function Main() {
   //   );
   //   // setClaimStatus("All Done");
   // }, [sendTransaction]);
+
+  // Define supported chains
+  type SupportedChain = typeof base | typeof arbitrum;
+
+  // Map contract addresses to their respective chains
+  interface ContractChainMap {
+    [address: `0x${string}`]: SupportedChain;
+  }
+
+  const contractChainMap: ContractChainMap = {
+    "0xA7f3667D5221a8bDc6c4e931850c62Cf42a82E0a": base, // Replace with your Base contract address
+    "0x9CFCf2dB224b324c5202848eB5B08056888439d4": arbitrum, // Replace with your Arbitrum contract address
+  } as const;
+
+  // Hook parameters
+  interface SendTxClaimParams {
+    contractAddress: `0x${string}`;
+  }
+
+  function useSendTxClaim({ contractAddress }: SendTxClaimParams) {
+    const { chain } = useAccount();
+    const { switchChainAsync } = useSwitchChain();
+    const {
+      sendTransaction,
+      isPending: isSending,
+      error: sendError,
+    } = useSendTransaction();
+    const [transactionHash, setTransactionHash] = useState<
+      `0x${string}` | undefined
+    >(undefined);
+
+    // Track transaction confirmation
+    const {
+      isLoading: isConfirming,
+      isSuccess: isConfirmed,
+      error: confirmError,
+    } = useWaitForTransactionReceipt({
+      hash: transactionHash,
+    });
+
+    const sendTxClaim = useCallback(async () => {
+      try {
+        // Validate contract address
+        const targetChain = contractChainMap[contractAddress];
+        if (!targetChain) {
+          throw new Error("Unknown contract address");
+        }
+
+        // Switch to the correct chain if not already connected
+        if (chain?.id !== targetChain.id) {
+          try {
+            await switchChainAsync({ chainId: targetChain.id });
+          } catch (switchError) {
+            console.error("Failed to switch chain:", switchError);
+            throw new Error(
+              `Please manually switch to ${targetChain.name} in your wallet.`
+            );
+          }
+        }
+
+        // Encode the function data
+        const data = encodeFunctionData({
+          abi: claimAbi,
+          functionName: "claim",
+          args: [],
+        });
+
+        // Send the transaction
+        sendTransaction(
+          {
+            to: contractAddress,
+            data,
+          },
+          {
+            onSuccess: (hash: Hash) => {
+              console.log("Transaction hash:", hash);
+              setTxHash(hash);
+              setTransactionHash(hash); // Set local state for confirmation tracking
+            },
+            onError: (error: Error) => {
+              console.error("Transaction error:", error);
+            },
+          }
+        );
+      } catch (error: unknown) {
+        console.error("Error in sendTxClaim:", error);
+        alert(`Error: ${(error as Error).message}`);
+      }
+    }, [
+      chain,
+      switchChainAsync,
+      sendTransaction,
+      contractAddress,
+      claimAbi,
+      setTxHash,
+    ]);
+
+    return {
+      sendTxClaim,
+      isSending,
+      isConfirming,
+      isConfirmed,
+      error: sendError || confirmError,
+      buttonText: isConfirming
+        ? "Claiming..."
+        : isConfirmed
+        ? "Claimed"
+        : `Claim on ${contractChainMap[contractAddress]?.name || "Unknown"}`,
+      buttonTextB: isConfirming
+        ? "Claiming..."
+        : isConfirmed
+        ? "Claimed"
+        : `Share to claim on ${
+            contractChainMap[contractAddress]?.name || "Unknown"
+          }`,
+    };
+  }
+
+  const baseContractAddress =
+    "0xA7f3667D5221a8bDc6c4e931850c62Cf42a82E0a" as `0x${string}`;
+  const arbitrumContractAddress =
+    "0x9CFCf2dB224b324c5202848eB5B08056888439d4" as `0x${string}`;
+
+  const {
+    sendTxClaim: claimOnBase,
+    isSending: isBaseSending,
+    isConfirming: isBaseConfirming,
+    isConfirmed: isBaseConfirmed,
+    error: baseError,
+    buttonTextB: baseButtonText,
+  } = useSendTxClaim({
+    contractAddress: baseContractAddress,
+  });
+
+  const {
+    sendTxClaim: claimOnArbitrum,
+    isSending: isArbitrumSending,
+    isConfirming: isArbitrumConfirming,
+    isConfirmed: isArbitrumConfirmed,
+    error: arbitrumError,
+    buttonText: arbitrumButtonText,
+  } = useSendTxClaim({
+    contractAddress: arbitrumContractAddress,
+  });
+
   const hasFetched = useRef(false);
   // const hasClaimed=useRef(false)
   useEffect(() => {
@@ -623,8 +687,7 @@ export default function Main() {
 
   useEffect(() => {
     if (castHash) {
-      // sendTxMint()
-      claimBase();
+      claimOnBase;
     }
   }, [castHash]);
 
@@ -1086,6 +1149,26 @@ export default function Main() {
           onClick={handleClick}
         >
           {clicked ? addFrameResult : "Add Frame"}
+        </div>
+        <div>
+          <button
+            onClick={claimOnBase}
+            disabled={isBaseSending || isBaseConfirming || isBaseConfirmed}
+          >
+            {baseButtonText}
+          </button>
+          <button
+            onClick={claimOnArbitrum}
+            disabled={
+              isArbitrumSending || isArbitrumConfirming || isArbitrumConfirmed
+            }
+          >
+            {arbitrumButtonText}
+          </button>
+          {txHash && <p>Transaction Hash: {txHash}</p>}
+          {(baseError || arbitrumError) && (
+            <p>Error: {(baseError || arbitrumError)?.message}</p>
+          )}
         </div>
       </div>
     );
@@ -1695,47 +1778,30 @@ export default function Main() {
         100% { background-position: 100% 50%; }
       }
     `}</style>
-
-          {!castHash
-            ? "Share the mini-app to claim few $DEGEN"
-            : isConfirming
-            ? "Claiming..."
-            : isConfirmed
-            ? "Claimed"
-            : "Thanks for sharing"}
+          {baseButtonText}
         </button>
-        {context?.user.fid === 268438 && (
-          <button
-            onClick={claimArb}
-            // disabled={isSendTxPending}
-            className="text-white text-center py-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center gap-2"
-            style={{
-              background:
-                "linear-gradient(90deg, #8B5CF6, #7C3AED, #A78BFA, #8B5CF6)",
-              backgroundSize: "300% 100%",
-              animation: "gradientAnimation 3s infinite ease-in-out",
-            }}
-          >
-            <div
-              className={`absolute inset-0 bg-[#38BDF8] transition-all duration-500 ${
-                isClicked ? "scale-x-100" : "scale-x-0"
-              }`}
-              style={{ transformOrigin: "center" }}
-            ></div>
-            <style>{`
+        <button
+          onClick={claimOnArbitrum}
+          disabled={
+            isArbitrumSending || isArbitrumConfirming || isArbitrumConfirmed
+          }
+          className="text-white text-center py-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center gap-2"
+          style={{
+            background:
+              "linear-gradient(90deg, #8B5CF6, #7C3AED, #A78BFA, #8B5CF6)",
+            backgroundSize: "300% 100%",
+            animation: "gradientAnimation 3s infinite ease-in-out",
+          }}
+        >
+          <style>{`
               @keyframes gradientAnimation {
                 0% { background-position: 0% 50%; }
                 50% { background-position: 100% 50%; }
                 100% { background-position: 0% 50%; }
               }
             `}</style>
-            {isConfirming
-              ? "Claiming..."
-              : isConfirmed
-              ? "Claimed"
-              : "claim degen on arbitrum"}
-          </button>
-        )}
+          {arbitrumButtonText}
+        </button>
 
         <div className="flex-row gap-2 flex">
           {followData?.followBack === false && (
@@ -1748,7 +1814,7 @@ export default function Main() {
               className="text-white flex-1 text-center py-2 mb-2 rounded-xl font-semibold text-lg shadow-xl relative overflow-hidden flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
               onClick={
                 context?.user.fid === 268438
-                  ? () => claimBase()
+                  ? () => claimOnBase
                   : () => sdk.actions.viewProfile({ fid: 268438 })
               }
             >
