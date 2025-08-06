@@ -504,7 +504,7 @@ export default function Main() {
 
   const contractChainMap: ContractChainMap = {
     "0xA7f3667D5221a8bDc6c4e931850c62Cf42a82E0a": base, // Replace with your Base contract address
-    "0x9CFCf2dB224b324c5202848eB5B08056888439d4": arbitrum, // Replace with your Arbitrum contract address
+    "0xD687FbeCbB21f5490aca6C525fe00B864f59d5Ac": arbitrum, // Replace with your Arbitrum contract address
   } as const;
 
   // Hook parameters
@@ -600,12 +600,12 @@ export default function Main() {
         ? "Claiming..."
         : isConfirmed
         ? "Claimed"
-        : `Claim on ${contractChainMap[contractAddress]?.name || "Unknown"}`,
+        : `Claim USDC on ${contractChainMap[contractAddress]?.name || "Unknown"}`,
       buttonTextB: isConfirming
         ? "Claiming..."
         : isConfirmed
         ? "Claimed"
-        : `Share to claim on ${
+        : `Share to claim DEGEN on ${
             contractChainMap[contractAddress]?.name || "Unknown"
           }`,
     };
@@ -614,7 +614,7 @@ export default function Main() {
   const baseContractAddress =
     "0xA7f3667D5221a8bDc6c4e931850c62Cf42a82E0a" as `0x${string}`;
   const arbitrumContractAddress =
-    "0x9CFCf2dB224b324c5202848eB5B08056888439d4" as `0x${string}`;
+    "0xD687FbeCbB21f5490aca6C525fe00B864f59d5Ac" as `0x${string}`;
 
   const {
     sendTxClaim: claimOnBase,
@@ -1149,26 +1149,6 @@ export default function Main() {
           onClick={handleClick}
         >
           {clicked ? addFrameResult : "Add Frame"}
-        </div>
-        <div>
-          <button
-            onClick={claimOnBase}
-            disabled={isBaseSending || isBaseConfirming || isBaseConfirmed}
-          >
-            {baseButtonText}
-          </button>
-          <button
-            onClick={claimOnArbitrum}
-            disabled={
-              isArbitrumSending || isArbitrumConfirming || isArbitrumConfirmed
-            }
-          >
-            {arbitrumButtonText}
-          </button>
-          {txHash && <p>Transaction Hash: {txHash}</p>}
-          {(baseError || arbitrumError) && (
-            <p>Error: {(baseError || arbitrumError)?.message}</p>
-          )}
         </div>
       </div>
     );
@@ -1803,7 +1783,7 @@ export default function Main() {
           {arbitrumButtonText}
         </button>
 
-        <div className="flex-row gap-2 flex">
+        <div className="flex-row gap-2 flex cursor-pointer">
           {followData?.followBack === false && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -1814,7 +1794,7 @@ export default function Main() {
               className="text-white flex-1 text-center py-2 mb-2 rounded-xl font-semibold text-lg shadow-xl relative overflow-hidden flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
               onClick={
                 context?.user.fid === 268438
-                  ? () => claimOnBase
+                  ? () => claimOnBase()
                   : () => sdk.actions.viewProfile({ fid: 268438 })
               }
             >
