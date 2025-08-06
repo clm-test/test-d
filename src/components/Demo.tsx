@@ -38,7 +38,7 @@ export default function Main() {
   // const boards = ["RainBoard", "PointsBoard", "AllowanceBoard"] as const;
   // type Board = (typeof boards)[number];
   const { isConnected } = useAccount();
-  const [txHash, setTxHash] = useState<Hash | null>(null);
+  // const [txHash, setTxHash] = useState<Hash | null>(null);
   const [castHash, setCastHash] = useState<string | null>(null);
 
   const [clicked, setClicked] = useState(false);
@@ -448,12 +448,12 @@ export default function Main() {
   };
   const [isClicked, setIsClicked] = useState(false);
 
-  const {
-    switchChain,
-    // error: switchChainError,
-    // isError: isSwitchChainError,
-    // isPending: isSwitchChainPending,
-  } = useSwitchChain();
+  // const {
+  //   switchChain,
+  //   // error: switchChainError,
+  //   // isError: isSwitchChainError,
+  //   // isPending: isSwitchChainPending,
+  // } = useSwitchChain();
   const chainId = useChainId();
 
 
@@ -569,7 +569,6 @@ export default function Main() {
           {
             onSuccess: (hash: Hash) => {
               console.log("Transaction hash:", hash);
-              setTxHash(hash);
               setTransactionHash(hash); // Set local state for confirmation tracking
             },
             onError: (error: Error) => {
@@ -586,8 +585,6 @@ export default function Main() {
       switchChainAsync,
       sendTransaction,
       contractAddress,
-      claimAbi,
-      setTxHash,
     ]);
 
     return {
@@ -618,10 +615,10 @@ export default function Main() {
 
   const {
     sendTxClaim: claimOnBase,
-    isSending: isBaseSending,
-    isConfirming: isBaseConfirming,
-    isConfirmed: isBaseConfirmed,
-    error: baseError,
+    // isSending: isBaseSending,
+    // isConfirming: isBaseConfirming,
+    // isConfirmed: isBaseConfirmed,
+    // error: baseError,
     buttonTextB: baseButtonText,
   } = useSendTxClaim({
     contractAddress: baseContractAddress,
@@ -632,7 +629,7 @@ export default function Main() {
     isSending: isArbitrumSending,
     isConfirming: isArbitrumConfirming,
     isConfirmed: isArbitrumConfirmed,
-    error: arbitrumError,
+    // error: arbitrumError,
     buttonText: arbitrumButtonText,
   } = useSendTxClaim({
     contractAddress: arbitrumContractAddress,
@@ -687,7 +684,7 @@ export default function Main() {
 
   useEffect(() => {
     if (castHash) {
-      claimOnBase;
+      claimOnBase();
     }
   }, [castHash]);
 
