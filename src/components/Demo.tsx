@@ -835,6 +835,28 @@ export default function Main() {
     }
   };
 
+
+    const casting0 = async () => {
+    const hash = await cast0();
+    if (hash) {
+      setCastHash(hash);
+    }
+  };
+
+  const cast0 = async (): Promise<string | undefined> => {
+    try {
+ 
+        const result = await sdk.actions.composeCast({
+          text: "$DEGEN stats\nminiapp by @cashlessman.eth",
+          embeds: [`https://degen-v2.vercel.app`],
+        });
+        return result.cast?.hash;
+     
+    } catch (error) {
+      console.error("Error composing cast:", error);
+      return undefined;
+    }
+  };
   // const calculateRanks = (data: rainleader[]): rainleader[] => {
   //   let rank = 1;
   //   return data.map((item, index, array) => {
@@ -1707,7 +1729,7 @@ export default function Main() {
 
         <div
           className="bg-[#8B5CF6] p-2 items-center justify-center text-center cursor-pointer rounded-lg"
-          onClick={casting}
+          onClick={casting0}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
