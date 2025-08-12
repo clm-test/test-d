@@ -1784,7 +1784,7 @@ export default function Main() {
           disabled={
             isArbitrumSending || isArbitrumConfirming || isArbitrumConfirmed
           }
-          className="text-white text-center py-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center gap-2"
+          className="hidden text-white text-center py-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 items-center justify-center gap-2"
           style={{
             background:
               "linear-gradient(90deg, #8B5CF6, #7C3AED, #A78BFA, #8B5CF6)",
