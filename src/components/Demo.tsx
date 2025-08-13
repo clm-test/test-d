@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useCallback, useState, useRef } from "react";
-// import sdk, { AddMiniApp, type Context } from "@farcaster/frame-sdk";
 import sdk, {
   AddMiniApp,
   type Context,
@@ -1990,3 +1989,4 @@ export default function Main() {
 //   if (!error) return null;
 //   return <div className="text-red-500 text-xs mt-1">{error.message}</div>;
 // };
+
