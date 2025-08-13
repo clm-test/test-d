@@ -629,12 +629,9 @@ export default function Main() {
   });
 
   const {
-    sendTxClaim: claimOnArbitrum,
     isSending: isArbitrumSending,
     isConfirming: isArbitrumConfirming,
     isConfirmed: isArbitrumConfirmed,
-    // error: arbitrumError,
-    buttonText: arbitrumButtonText,
   } = useSendTxClaim({
     contractAddress: arbitrumContractAddress,
   });
@@ -1803,7 +1800,7 @@ export default function Main() {
                 100% { background-position: 0% 50%; }
               }
             `}</style>
-          {arbitrumButtonText}
+          Claim USDC on Arbitrum
         </button>
 
         <div className="flex-row gap-2 flex cursor-pointer">
