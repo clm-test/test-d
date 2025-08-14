@@ -22,6 +22,11 @@ export async function GET() {
     castShareUrl: "https://degen-v2.vercel.app",
     primaryCategory: "utility"
     },
+  {
+  "baseBuilder": {
+    "allowedAddresses": ["0x06e5B0fd556e8dF43BC45f8343945Fb12C6C3E90"
+  }
+}
   };
 
   return Response.json(config);
